@@ -1,0 +1,101 @@
+<html>
+<head>
+    <meta name = "viewport" content = "width = device-width">
+    <title>Canvas Over truc Video</title>
+    <script type="text/javascript">
+
+        var can, ctx, vid, playButton, vidTimer, text, angle = 0;
+
+        function init() {
+		vid = document.getElementById("vid");
+		vid1 = document.getElementById("vid1");
+		playButton = document.getElementById("play");
+		can = document.getElementById("can");
+		time = document.getElementById("curtime");
+		acc = document.getElementById("curacc");
+		vid.addEventListener('ended', vidEnd, false);
+        }
+
+        function playVideo() {
+		if (playButton.value == "Play") {
+			vid.play();
+			playButton.value = "Pause";
+		}
+		else {
+		        vid.pause();
+		        playButton.value = "Play";		
+		}
+	}
+
+	function avancer(){
+		vid.currentTime += 10;
+		time.innerText = vid.currentTime;
+	}
+
+	function reculer(){
+		vid.currentTime -= 10;
+		time.innerText = vid.currentTime;
+	}
+	
+	function stop(){
+		vid.currentTime = -1;
+		vid.pause();
+		if (playButton.value == "Pause") {
+			 playButton.value = "Play";		
+		}
+	}
+
+        function vidEnd() {
+		playButton.value = "Play";
+		vid.playbackRate = 1;
+		clearTimeout(vidTimer)
+	}	
+	function decelerer(){
+		vid.playbackRate -= 0.25;
+		vid.pause();
+		vid.play();
+		acc.innerText = vid.playbackRate;
+	}
+
+        function accelerer(){
+		vid.playbackRate += 0.25;
+		vid.pause();
+		vid.play();
+		acc.innerText = vid.playbackRate;
+	}
+
+
+    </script>
+</head>
+
+<body onload="init()">
+
+    <video id="vid" width="512" height="288" style="position:absolute; top: 10; left: 10;">
+	<source src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" type="video/mp4"  /><!-- Safari / iOS, IE9 -->
+	<source src="http://clips.vorwaerts-gmbh.de/VfE.webm"      type="video/webm" /><!-- Chrome10+, Ffx4+, Opera10.6+ -->
+	<source src="http://clips.vorwaerts-gmbh.de/VfE.ogv"       type="video/ogg"  /><!-- Firefox3.6+ / Opera 10.5+ -->
+    </video>
+    <video id="vid1" width="171" height="96" style="position:absolute; top: 10; left: 522;">
+	<source src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" type="video/mp4"  /><!-- Safari / iOS, IE9 -->
+	<source src="http://clips.vorwaerts-gmbh.de/VfE.webm"      type="video/webm" /><!-- Chrome10+, Ffx4+, Opera10.6+ -->
+	<source src="http://clips.vorwaerts-gmbh.de/VfE.ogv"       type="video/ogg"  /><!-- Firefox3.6+ / Opera 10.5+ -->
+    </video>
+
+   <!-- <canvas id="can" height="360" width="640" style="position:absolute; top: 10; left: 10;">
+    </canvas> -->
+
+    <p style="position:absolute; top: 300; left: 30;"> 
+	<input id="stop" type="button" value="[]" onclick="stop()" style="font:15pt Helvetica" />
+        <input id="play" type="button" value="Play" onclick="playVideo()" style="font:15pt Helvetica" />
+	 <input id="arriere" type="button" value="<" onclick="reculer()" style="font:15pt Helvetica" />
+	 <input id="decc" type="button" value="dec" onclick="decelerer()" style="font:15pt Helvetica" />
+	 <input id="acc" type="button" value="acc" onclick="accelerer()" style="font:15pt Helvetica" />
+	 <input id="avant" type="button" value=">" onclick="avancer()" style="font:15pt Helvetica" />
+	<br />
+	horloge courante : <span id ="curtime"></span>
+	<br />
+	acc courante : <span id ="curacc"></span>
+    </p>
+
+</body>
+</html>
