@@ -1,43 +1,95 @@
 <html>
 <head>
-    <meta name = "viewport" content = "width = device-width">
+    <!-- <meta name = "viewport" content = "width = device-width"> -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Canvas Over truc Video</title>
     <script type="text/javascript">
 
-	var can, vid, playButton, time, acc, posX, posY;
+	/* Objets */
+	var can, vid, playButton, time, acc, posX, posY, touch;
+	
+	/* Timer */ 
+	var timer;
 
+	/* Recupere tous les elements*/
 	function init() {
+		can = document.getElementById("can");
+		ctx = can.getContext("2d");
+
 		vid = document.getElementById("vid");
 		playButton = document.getElementById("play");
-		can = document.getElementById("can");
 		time = document.getElementById("curtime");
-		acc = document.getElementById("curacc");
 		vid.addEventListener('ended', vidEnd, false);
-		posX = document.getElementById("posX");
-		posY = document.getElementById("posY");
+		pos = document.getElementById("position");
+		duration = document.getElementById("temps");
+		can.addEventListener("touchstart", touchDown, false);
+		can.addEventListener("touchmove", touchXY, true);
+		can.addEventListener("touchend", touchUp, false);
+		document.body.addEventListener("touchcancel", touchUp, false);
+	}
+	
+	/* Gestion du touch */
+	/* Doigt leve */
+	function touchUp() {
+            mouseIsDown = 0;
+        }
+	
+	/* Touch du doigt */
+	function touchDown() {
+            mouseIsDown = 1;
+            touchXY();
+        }
+	
+	/* Recupere levenement et le traite */
+	function touchXY(e) {
+            if (!e)
+                var e = event;
+	    e.preventDefault();
+	    showPos(e.targetTouches[0].pageX - can.offsetLeft, e.targetTouches[0].pageY - can.offsetTop); 
+        }
+
+	/* Affiche la position et le cercle sous le doigt*/
+	function showPos(canX, canY){
+	    
+	    if(canX && canY && canX <= can.width && canY <= can.height && canX >= 0 && canY >= 0) {
+		pos.innerText = "(" + canX + "," + canY + ")";
+		time.innerText = Math.round(vid.currentTime);
+	    }
+	    ctx.clearRect(0, 0, document.width, document.height);
+	    
+	    ctx.beginPath();
+	    ctx.arc(canX, canY, 10, 0, 2 * Math.PI, false);
+	    ctx.fillStyle = 'white';
+	    ctx.fill();
 	}
 
+	/* Gestion de la video */
+	/* Play */
 	function playVideo() {
 		if (playButton.value == "Play") {
 			vid.play();
-			playButton.value = "Pause";
+			playButton.value = "Pause";	
 		}
 		else {
 			vid.pause();
-			playButton.value = "Play";		
+			playButton.value = "Play";
+			time.innerText = Math.round(vid.currentTime);	
 		}
 	}
-
-	function avancer(){
+	
+	/* Forward*/
+	function fwd(){
 		vid.currentTime += 10;
-		time.innerText = vid.currentTime;
+		time.innerText = Math.round(vid.currentTime);
 	}
 
-	function reculer(){
+	/* Backward */
+	function bwd(){
 		vid.currentTime -= 10;
-		time.innerText = vid.currentTime;
+		time.innerText = Math.round(vid.currentTime);
 	}
 	
+	/* Stop */
 	function stop(){
 		vid.currentTime = -1;
 		vid.pause();
@@ -46,61 +98,72 @@
 		}
 	}
 
+	/* Plus lentement */
+	function slower(){
+		vid.playbackRate -= 0.25;
+		vid.pause();
+		vid.play();
+	}
+
+	/* Plus rapide */
+	function faster(){
+		vid.playbackRate += 0.25;
+		vid.pause();
+		vid.play();
+	}
+      
+	/* Evenement de fin de video */
 	function vidEnd() {
 		playButton.value = "Play";
 		vid.playbackRate = 1;
 		clearTimeout(vidTimer)
 	}	
 
-	
-	function decelerer(){
-		vid.playbackRate -= 0.25;
-		vid.pause();
-		vid.play();
-		acc.innerText = vid.playbackRate;
-	}
-
-	function accelerer(){
-		vid.playbackRate += 0.25;
-		vid.pause();
-		vid.play();
-		acc.innerText = vid.playbackRate;
-	}
-
-
     </script>
 </head>
 
 <body onload="init()">
 
-    <video id="vid" width="512" height="288" style="position:absolute; top: 10; left: 10;">
-	<source src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" type="video/mp4"  /><!-- Safari / iOS, IE9 -->
-	<source src="http://clips.vorwaerts-gmbh.de/VfE.webm"      type="video/webm" /><!-- Chrome10+, Ffx4+, Opera10.6+ -->
-	<source src="http://clips.vorwaerts-gmbh.de/VfE.ogv"       type="video/ogg"  /><!-- Firefox3.6+ / Opera 10.5+ -->
+    <!-- Adapter taille a taille ecran -->
+    <video id="vid" width="512" height="288">
+	<source src="TBBT.mp4" type="video/mp4"  /><!-- Safari / iOS, IE9 -->
+
+	<!-- Ajouter un message si jamais la video n'est pas lisible par le broswer -->
+
     </video>
 
     <canvas id="can" height="288" width="512" style="position:absolute; top: 10; left: 10;" style="background-color:black">
     </canvas>
 
     <p style="position:absolute; top: 300; left: 30;"> 
+	<!-- Voir comment faire pour gerer le multituch et integrer les commandes a des gestes plutot qu'avoir des boutons -->
 	<input id="stop" type="button" value="[]" onclick="stop()" style="font:15pt Helvetica" />
 	<input id="play" type="button" value="Play" onclick="playVideo()" style="font:15pt Helvetica" />
-	<input id="arriere" type="button" value="<" onclick="reculer()" style="font:15pt Helvetica" />
-	<input id="decc" type="button" value="dec" onclick="decelerer()" style="font:15pt Helvetica" />
-	<input id="acc" type="button" value="acc" onclick="accelerer()" style="font:15pt Helvetica" />
-	<input id="avant" type="button" value=">" onclick="avancer()" style="font:15pt Helvetica" />
+	<input id="arriere" type="button" value="<" onclick="bwd()" style="font:15pt Helvetica" />
+	<input id="decc" type="button" value="dec" onclick="slower()" style="font:15pt Helvetica" />
+	<input id="acc" type="button" value="acc" onclick="faster()" style="font:15pt Helvetica" />
+	<input id="avant" type="button" value=">" onclick="fwd()" style="font:15pt Helvetica" />
 	<br />
-	
 
-	<!-- Verifier pourquoi ça ne fonctionne pas !! (Acc et decc) -->
-	horloge courante : <span id ="curtime"></span>
+	<!-- Trouver comment avoir la duree totale (Vient de l'encodage du fichier ? Probable) -->
+	Temps total : <span id ="temps"></span>
+	<br/>
+	<!-- Ajouter un timer pour avoir le temps qui defile --> 
+	Temps courant : <span id ="curtime"></span>
 	<br />
-	acc courante : <span id ="curacc"></span>
+	<span id ="position"></span>
 	<br />
-	position x : <span id ="posX"></span>
-	<br />
-	position y : <span id ="posY"></span>
     </p>
 
 </body>
 </html>
+
+<!-- A venir, en vrac : 
+Bufferiser une video : Peut-etre possible. http://inserthtml.developpez.com/tutoriels/javascript/lecteur-video-personnalise/ ( -> JQuery)
+Faire tous les commentaires dans le code
+Multitouch
+Avoir la video coupee en plan. Pour stoper au moment des changements de plan. Donner la possibilité de revenir au dernier debut de scene si plusieurs visages. 
+Enregistrer les donnees sur le serveur.
+Faire une traitement des donnees pour veirifer si c'est bon. 
+Gestion de la grosseur de l'objet/visage ?
+->
