@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="UTF-8" name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+	<title>Test multitouch
+	</title>
+	</head>	
+	<body onload="init()">
+		<div id="corps">
+			<div class = "video">
+				<video id="vid" width = 871 height = 490>
+					
+					<source src="http://clips.vorwaerts-gmbh.de/VfE.webm"      type="video/webm" /><!-- Chrome10+, Ffx4+, Opera10.6+ -->
+					<source src="TBBT.mp4" type="video/mp4"  /> <!-- Safari / iOS, IE9 -->
+					<!-- Ajouter un message si jamais la video n'est pas lisible par le broswer : "Lecture possible que pour Safari/Ios et IE9."-->
+				</video>
+				<!-- Pour l'affiche plus tard du touché des doigts -->
+				<!--<canvas id="can" height= 490 width= 871  style="background-color:green">
+				</canvas>-->
+			</div>
+
+			<div class = "affichage" >
+				<p> 
+					<input id="stop" type="button" value="[]" onclick="stop()" style="font:15pt Helvetica" />
+					<input id="arriere" type="button" value="<" onclick="bwd()" style="font:15pt Helvetica" />
+					<input id="decc" type="button" value="dec" onclick="slower()" style="font:15pt Helvetica" />
+					<input id="acc" type="button" value="acc" onclick="faster()" style="font:15pt Helvetica" />
+					<input id="avant" type="button" value=">" onclick="fwd()" style="font:15pt Helvetica" />
+					<br />
+					Temps total : <span id ="temps"></span>
+					<br/>
+					Temps courant : <span id ="curtime"></span>
+					<br />
+					<span id ="position"></span>
+					<br/>
+					<span id ="debug"> </span>
+					<br />
+			
+				</p>
+			</div>
+			
+		</div>
+		
+		<script src="ga.js"></script>
+		<script src="hammer.js"></script>
+		<script type="text/javascript" src="comportement.js"></script>
+	</body>
+</html>
+

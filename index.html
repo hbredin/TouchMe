@@ -1,6 +1,7 @@
 <html>
 	<head>
-		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta charset="UTF-8" name="apple-mobile-web-app-capable" content="yes">
+
 		<title>Canvas Over Video
 		</title>
 	</head>
@@ -15,7 +16,7 @@
 
 		/* Recupere tous les elements*/
 		function init() {
-			/* Canvas, context and document */
+			/* Canvas, context et document */
 			can = document.getElementById("can");
 			ctx = can.getContext("2d");
 			can.addEventListener("touchstart", touchDown, false);
@@ -24,7 +25,7 @@
 			document.body.addEventListener("touchcancel", touchUp, false);
 
 
-			/* Objects : button and video */
+			/* Objects : button et video */
 			vid = document.getElementById("vid");
 			vid.addEventListener('ended', vidEnd, false);
 			playButton = document.getElementById("play");
@@ -34,15 +35,15 @@
 			debug = document.getElementById("debug");
 			pos = document.getElementById("position");
 			tmp = document.getElementById("temps");	
-			/* Empecher le scroll et le zoom */
+			/*Empecher le scroll et le zoom */
 			document.body.addEventListener('touchmove', function(event) {
 									event.preventDefault();
-								}, false); 
+								}, false);
 		}
 
 		function curtime(){
 			time.innerText = Math.round(vid.currentTime);
-			if(vid.currentTime > 1 && vid.currentTime <= 2){ /* Oblige car au tout debut on a pas la duree.Cest que au bout de une seconde */
+			if(vid.currentTime > 1 && vid.currentTime <= 2){ /* Oblige car au tout debut on a pas la duree. Cest que au bout de une seconde */
 				tmp.innerText = Math.round(vid.duration); /* Returns the duration in seconds of the current media resource. A NaN value is returned if duration is not available, or Infinity if the media resource is streaming */
 			}
 		}
@@ -137,39 +138,44 @@
 		}	
 	</script>
 
-
 	<body onload="init()">
-		<!-- Adapter taille a taille ecran -->
-		<!--<video id="vid" width="512" height="288">-->
-		<video id="vid" width = 871 height = 490>
-			<source src="TBBT.mp4" type="video/mp4"  /> <!-- Safari / iOS, IE9 -->
-			<!-- Ajouter un message si jamais la video n'est pas lisible par le broswer : "Lecture possible que pour Safari/Ios et IE9."-->
-		</video>
+		<div class = "corps">
+			<div class = "video">
+				<!-- Adapter taille a taille ecran -->
+				<!--<video id="vid" width="512" height="288">-->
+				<video id="vid" width = 871 height = 490>
+					<source src="TBBT.mp4" type="video/mp4"  /> <!-- Safari / iOS, IE9 -->
+					<!-- Ajouter un message si jamais la video n'est pas lisible par le broswer : "Lecture possible que pour Safari/Ios et IE9."-->
+				</video>
 
-		<canvas id="can" height= 490 width= 871 style="position:absolute; top: 10; left: 10;" style="background-color:black">
-		</canvas>
+				<canvas id="can" height= 490 width= 871 style="position:absolute; top: 10; left: 10;" style="background-color:black">
+				</canvas>
+			</div>
+			<div class = "affichage" >
+				<p style="position:absolute; top:510; left: 30;"> 
+					<!-- Voir comment faire pour gerer le multituch et integrer les commandes a des gestes plutot qu'avoir des boutons -->
+					<input id="stop" type="button" value="[]" onclick="stop()" style="font:15pt Helvetica" />
+					<input id="play" type="button" value="Play" onclick="playVideo()" style="font:15pt Helvetica" />
+					<input id="arriere" type="button" value="<" onclick="bwd()" style="font:15pt Helvetica" />
+					<input id="decc" type="button" value="dec" onclick="slower()" style="font:15pt Helvetica" />
+					<input id="acc" type="button" value="acc" onclick="faster()" style="font:15pt Helvetica" />
+					<input id="avant" type="button" value=">" onclick="fwd()" style="font:15pt Helvetica" />
+					<br />
 
-		<p style="position:absolute; top:510; left: 30;"> 
-			<!-- Voir comment faire pour gerer le multituch et integrer les commandes a des gestes plutot qu'avoir des boutons -->
-			<input id="stop" type="button" value="[]" onclick="stop()" style="font:15pt Helvetica" />
-			<input id="play" type="button" value="Play" onclick="playVideo()" style="font:15pt Helvetica" />
-			<input id="arriere" type="button" value="<" onclick="bwd()" style="font:15pt Helvetica" />
-			<input id="decc" type="button" value="dec" onclick="slower()" style="font:15pt Helvetica" />
-			<input id="acc" type="button" value="acc" onclick="faster()" style="font:15pt Helvetica" />
-			<input id="avant" type="button" value=">" onclick="fwd()" style="font:15pt Helvetica" />
-			<br />
-
-			<!-- Trouver comment avoir la duree totale (Vient de l'encodage du fichier ? Probable) -->
-			Temps total : <span id ="temps"></span>
-			<br/>
-			<!-- Ajouter un timer pour avoir le temps qui defile --> 
-			Temps courant : <span id ="curtime"></span>
-			<br />
-			<span id ="position"></span>
-			<br/>
-			<span id ="debug"></span>
-			<br />
-		</p>
+					<!-- Trouver comment avoir la duree totale (Vient de l'encodage du fichier ? Probable) -->
+					Temps total : <span id ="temps"></span>
+					<br/>
+					<!-- Ajouter un timer pour avoir le temps qui defile --> 
+					Temps courant : <span id ="curtime"></span>
+					<br />
+					<span id ="position"></span>
+					<br/>
+					<span id ="debug"> </span>
+					<br />
+			
+				</p>
+			</div>
+		</div>
 	</body>
 </html>
 
