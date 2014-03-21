@@ -4,23 +4,29 @@ import numpy as np
 import matplotlib
 from matplotlib import pyplot as plt
 from scipy import signal as sig
-
+import pickle as pk
 
 class SSAlgorithm():
 
 	#### Constructeur
-	def __init__(self, order, seuil) : # int, float
-		self.order = order
-		self.seuil = seuil
+	def __init__(self, nomVid) : # int, float
+		self.order = 10
+		self.seuil = 0.02
+		f = open(nomVid + "_segm.pkl","rb")
+		self.distMoy = pk.load(f)
+		f.close()
+		self.nomVideo = nomVid
+		self.capture = cv2.VideoCapture(self.nomVideo + ".mp4")
+		self.fps = int(self.capture.get(cv.CV_CAP_PROP_FPS))
 
-	#### Detecte les frontieres
-	def detect(self, video) : # str
-		capture = cv2.VideoCapture(video)
-		taille = int(capture.get(cv.CV_CAP_PROP_FRAME_COUNT))
+
+	### Calcule la distance moyenne
+	def calcul_dist(self):
+		taille = int(self.capture.get(cv.CV_CAP_PROP_FRAME_COUNT))
 		pasComp = 10
 		t=[0]*pasComp # Initialise le tableau des dix images que nous allons traiter (Le pas de comparaison : cad on compare a +4/-5 images de l'image ou on est)
 		for s in range(pasComp):
-		    val , temp = capture.read()
+		    val , temp = self.capture.read()
 		    if val : t[s] = temp
 		    else : t[s] = None
 
@@ -38,10 +44,10 @@ class SSAlgorithm():
 			i += 1
 			for k in range(pasComp-1):
 				t[k] = t[k+1]	
-			val , temp = capture.read()
+			val , temp = self.capture.read()
 			if val : t[pasComp-1] = temp
 			else : t[pasComp-1] = None
-		
+
 		distMoy = [0 for u in range(taille)]
 		for i, val in enumerate(dis[2]) :
 			distMoy[i] = val
@@ -50,10 +56,19 @@ class SSAlgorithm():
 		for i, val in enumerate(dis[0]) :
 			distMoy[i] += val
 			distMoy[i] = distMoy[i]/3
+		return distMoy
+
+	
+	#### Detecte les frontieres
+	def detect(self) : # str
+		
+		
+		#distMoy = self.calcul_dist()
+		
 		# Recupere les maxima locaux de la courbe -> return les index
-		maxi = sig.argrelmax(np.array(distMoy), order = self.order)
+		maxi = sig.argrelmax(np.array(self.distMoy), order = self.order)
 		# recupere les valeurs correspondants des maxi
-		valDist = np.take(distMoy, maxi)
+		valDist = np.take(self.distMoy, maxi)
 		# Enleve les valeur inferieur a 0.02 -> sinon detecte trop de coupures (Une fonction existe peutetre -> pas trouvee)
 		temp = []
 		incr = 0
@@ -63,39 +78,70 @@ class SSAlgorithm():
 			incr+=1
 		# et on remet dans les maxR/V/B
 		maxi = np.array(temp)
-            	return maxi, capture
+            	return maxi
 
 	
 	#### Calcul le nombre de frontieres bien detectees
 	def reussis(self, maxi, veritesTerrain) : # [], []
 		# Calcul du pourcentage de reussite sur la segmentation
-		rates = 0
 		reussi = 0
+		dist = np.array([[np.inf for u in range(len(maxi))] for v in range(len(veritesTerrain)) ])
 		for i, val1 in enumerate(maxi):
 			for j, val2 in enumerate(veritesTerrain):
-				if val1-val2 > -8 and val1-val2 < 8:
-					reussi += 1
-					break
+				temp = abs(val1-val2)
+				if temp < 8:
+					dist[j][i] = temp
+				
+		while dist.min() != np.inf and reussi < len(veritesTerrain):
+			reussi += 1
+			tp = dist.argmin()
+		#	print  dist.min() , ", ", tp
+			x = tp/len(maxi)
+			y = tp%len(maxi)
+			for i in range(len(maxi)) : 
+				dist[x][i] = np.inf
+			for j in range(len(veritesTerrain)) : 
+				dist[j][y] = np.inf
+		#print reussi		
 		return reussi
 
 	#### Calcul la precision	
-	def precision(self, maxi, veritesTerrain) : # [], []
-		reussi = self.reussis(maxi, veritesTerrain)
+	def precision(self, maxi, reussi) : # [], []
 		return float(reussi)/len(maxi)
 
+
 	#### Calcul le rappel
-	def rappel(self, maxi, veritesTerrain) : # [], []
-		reussi = self.reussis(maxi, veritesTerrain)
+	def rappel(self, reussi, veritesTerrain) : # [], []
 		return float(reussi)/len(veritesTerrain)
 	
 	#### Evalue les resultats par rapport aux verites terrain 
-	def evaluation(self, veritesTerrain, maxi, capture) : # [], [] -> Verites terrain donnees en secondes
-		for i,val in enumerate(veritesTerrain) :
-			veritesTerrain[i] = round(val*capture.get(cv.CV_CAP_PROP_FPS)) 
-		
-		prec = self.precision(maxi, veritesTerrain)
-		rapp = self.rappel(maxi, veritesTerrain)
+	def evaluation(self, veritesTerrain, maxi) : # [], [] -> Verites terrain donnees en secondes 
+		reussi = self.reussis(maxi, veritesTerrain)
+		prec = self.precision(maxi, reussi)
+		rapp = self.rappel(reussi, veritesTerrain)
 		return prec, rapp
+
+	
+	#### Boucle de detection 
+	
+	def boucle_detect_eval(self, range_order, range_seuil, vT) :
+		for i,val in enumerate(vT) :
+			vT[i] = round(val*self.fps) 
+ 		resultat = [[0.0 for u in range(range_order)] for v in range(range_seuil)]
+		for i in range(range_order) :
+			for j in range(range_seuil):
+				self.order = 5+i*2		
+				self.seuil =  0.01 + j *0.01
+				maxi = self.detect()
+				prec, rapp = self.evaluation(vT, maxi)
+				fmesure = 0.0
+				tp = rapp + prec
+				if tp != 0.0 : 
+					fmesure = 2*prec*rapp/(tp)
+
+				resultat[j][i] = (prec,rapp,fmesure)	
+				print "[%d, %d] = %d, %d" % (i, j, rapp, prec, )
+		return resultat
 
 	#### Permet de save en image le graphique obtenu
 	def save(self, tailleVid, fenetreIMG, nomIMG, affichage) : #int, int, str, bool
@@ -114,7 +160,7 @@ class SSAlgorithm():
 				incrX +=1
 			# Ajoute la courbes des distances
 			tempIndex = [fenetreIMG*i+u for u in range(fenetreIMG)]
-			plt.plot(tempIndex,distMoy[(i*fenetreIMG):((i+1)*fenetreIMG)], 'g') # x, y, couleur
+			plt.plot(tempIndex,self.distMoy[(i*fenetreIMG):((i+1)*fenetreIMG)], 'g') # x, y, couleur
 			# Ajoute les barres pour visualiser les verites terrain
 			if len(tempMax) != 0 :
 				plt.hist(tempMax, tailleVid/2, facecolor='b')
@@ -132,6 +178,4 @@ class SSAlgorithm():
 		 
 			plt.savefig(nom)
 			plt.close()
-		
-
 
