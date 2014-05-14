@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<title>Outil d'annotation</title>
+		<meta charset="UTF-8" name="apple-mobile-web-app-capable" content="yes">
+		<!-- On ouvre la fenêtre à la largeur de l'écran -->
+		<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+		<!-- Intégration du CSS Bootstrap -->
+		<link href="bs/css/bootstrap.css" rel="stylesheet">
+		<link href="bs/css/bootstrap-responsive.min.css" rel="stylesheet" />
+	</head>
+
+	<body onload="init()">
+		<!-- Premier container -> Pour la barre de navigation du haut -->
+		<div class="container">	
+			<!-- Barre de navigation -->
+			<div class="navbar navbar-inverse">
+				<div class="navbar-inner">
+					<div class="container">
+						<button class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse" type="button">
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
+						<a class="brand" href="#">
+							<i class="icon-white icon-home"></i> 
+						</a>
+						<nav class="nav-collapse" role="navigation">
+							<ul class="nav">
+								<li class="dropdown">
+									<a data-toggle="dropdown" class="dropdown-toggle" href="#"> <i class="icon-white icon-film"></i> Videos<b class="caret"></b></a>
+									<ul class="dropdown-menu">
+										<li><a href="#">Lien #2-a</a></li>
+										<li><a href="#">Lien #2-b</a></li>
+										<li><a href="#">Lien #2-c</a></li>
+									</ul>
+								</li>
+							</ul>
+						</nav>
+					        
+						    <form class="navbar-form navbar-right" role="form" align = "right">
+							<div class="form-group">
+							    <input class="form-control" type="login" placeholder="Login"></input>
+							
+							    <input class="form-control" type="password" placeholder="Password"></input>
+							
+							<button class="btn btn-success" type="submit">
+
+							    Sign in
+
+							</button>
+							</div>
+							</form>
+							
+						    
+
+						
+					</div> <!-- end of .navbar-inner -->
+				</div><!-- end of .navbar -->
+			</div><!-- end of .container -->
+		</div> <!-- Fin du container de la barre de navigation-->
+		<div class="container" >
+			<!-- Pour l'affichage plus tard du touché des doigts -->
+			
+				<video id="vid" width = 1008 height = 806 style="height:650px" align="center">
+		
+					<source src="http://clips.vorwaerts-gmbh.de/VfE.webm"      type="video/webm" /><!-- Chrome10+, Ffx4+, Opera10.6+ -->
+					<source src="videos/TBBT1.mp4" type="video/mp4"  /> <!-- Safari / iOS, IE9 -->
+					<!-- Ajouter un message si jamais la video n'est pas lisible par le broswer : "Lecture possible que pour Safari/Ios et IE9."-->
+					<!--<canvas id="can" height= 806 width= 1008 style="background-color: green">
+					</canvas>-->
+				</video>
+		
+		
+
+				
+			
+		</div>
+		<div class="container">
+			<!-- Barre de navigation de la video -->
+			<div class="navbar navbar-inverse">
+				<div class="navbar-inner" align = "center">					
+					<!-- Structure du menu -->
+					<div class="nav-collapse collapse" style="color:#FFFFFF">
+						<button class="btn" onclick="stop()"> <i class="icon-large icon-stop"></i> </button>  &nbsp;
+						<button class="btn" onclick="bwd()"> <i class="icon-large icon-step-backward"></i> </button>&nbsp; 
+						<button class="btn" onclick="slowerp()"> <i class="icon-large icon-backward"></i> </button>&nbsp;
+						<button class="btn" onclick="faster()"> <i class="icon-large icon-forward"></i> </button> &nbsp; 
+						<button class="btn" onclick="fwd()"> <i class="icon-large icon-step-forward"></i> </button> &nbsp;
+						<span id ="curtime"> 0 </span>/<span id ="temps"> 0 </span>
+						<span id ="position"></span>
+						<span id ="vitesse"></span>
+						
+					</div>
+				</div>
+			</div>
+		</div> 
+		<!-- Integration de la libraire de composants du Bootstrap -->
+		<script src="bs/js/bootstrap.js"></script>
+		<script src="bs/js/bootstrap.min.js"></script>
+		<script src="bs/js/jquery-1.11.0.min.js"></script>
+		<!-- Integration des librairies Hammer -->
+		<script src="ga.js"></script>
+		<script src="hammer.js"></script>
+		<!--  -->
+		<script type="text/javascript" src="comportement.js"></script>
+	</body>
+</html> 
